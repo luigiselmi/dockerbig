@@ -1,0 +1,40 @@
+version: '2.1'
+services:
+    zookeeper:
+        build:
+            context: ./sc4-zookeeper
+        image: bde2020/pilot-sc4-zookeeper
+        hostname: zookeeper
+        container_name: zookeeper
+        environment:
+            - MYID=1
+            - DELAY=5
+            - INIT_DAEMON_STEP=setup_zookeeper
+            - ENABLE_INIT_DAEMON = "true"
+        expose:
+            - "2181"
+        ports:
+            - "2181:2181"
+        networks:
+            - pilot-sc4-net
+
+    kafka:
+        build:
+            context: ./sc4-kafka
+        image: bde2020/pilot-sc4-kafka
+        hostname: kafka
+        container_name: kafka
+        environment:
+            - ZOOKEEPER_SERVERS=zookeeper:2181
+            - INIT_DAEMON_STEP=setup_kafka
+            - ENABLE_INIT_DAEMON = "true"
+        depends_on:
+            - zookeeper
+        expose:
+            - "9092"
+        networks:
+            - pilot-sc4-net
+           
+networks:
+  pilot-sc4-net:
+    external: true
